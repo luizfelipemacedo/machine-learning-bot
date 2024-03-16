@@ -1,0 +1,16 @@
+{
+  "scripts": {
+    "start": "node --env-file=.env --watch bot.js"
+  },
+  "dependencies": {
+    "fastify": "^4.26.2",
+    "@fastify/static": "^7.0.1",
+    "node-telegram-bot-api": "^0.65.1",
+    "@sashido/teachablemachine-node": "^1.2.2"
+  },
+  "engines": {
+    "node": "20.x"
+  },
+  "type": "module",
+  "author": "@luizfelipemacedo"
+}

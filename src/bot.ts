@@ -2,13 +2,11 @@ import { server } from "./server.js";
 import TelegramBot from "node-telegram-bot-api";
 import SashiDoTeachableMachine from "@sashido/teachablemachine-node";
 
-const botToken = process.env.BOT_TOKEN;
+const botToken = process.env.BOT_TOKEN as string;
 const bot = new TelegramBot(botToken, { polling: true });
 
 const modelUrl = "https://teachablemachine.withgoogle.com/models/AX2LlLix3/";
-const model = new SashiDoTeachableMachine({
-  modelUrl,
-});
+const model = new SashiDoTeachableMachine({ modelUrl });
 
 console.info("Bot is running...");
 
@@ -30,23 +28,21 @@ bot.onText(/\/classificar/, (message) => {
   bot.on("photo", (photoMessage) => handlePhoto(photoMessage));
 });
 
-async function handlePhoto(message) {
+async function handlePhoto(message: TelegramBot.Message) {
   const chatId = message.chat.id;
-  const photoId = message.photo[message.photo.length - 1].file_id;
+  const photoId = message.photo?.[message.photo.length - 1].file_id as string;
 
-  const imagePath = await bot.downloadFile(photoId, "./image");
+  const imagePath = await bot.downloadFile(photoId, "./src/image");
 
   try {
     const fileName = imagePath.split("/").pop();
     const serverAddress = server.getAddress();
 
     const imageUrl = `${serverAddress}/image/${fileName}`;
-
     bot.sendMessage(chatId, "Classificando imagem...");
 
     const predictionResult = await classifyImage(imageUrl);
-
-    server.removeFile(fileName);
+    server.removeFile(fileName as string);
 
     return bot.sendMessage(
       chatId,
@@ -58,12 +54,8 @@ async function handlePhoto(message) {
   }
 }
 
-/**
- *
- * @param { string } imageUrl
- * @returns { Promise<{ class: string, score: number }> }
- */
-async function classifyImage(imageUrl) {
+async function classifyImage(imageUrl: string) {
   const predictions = await model.classify({ imageUrl });
-  return predictions.find((prediction) => prediction.score > 0.5);
+  return predictions.find((prediction: { class: string, score: number }) => prediction.score > 0.5);
 }
+
